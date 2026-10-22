@@ -1,4 +1,4 @@
-package branchforge.modle;
+package branchforge.model;
 import branchforge.util.Utils;
 import com.sun.source.tree.Tree;
 

@@ -1,4 +1,4 @@
-package branchforge.modle;
+package branchforge.model;
 import branchforge.BranchForgeException;
 import java.io.Serial;
 import java.io.Serializable;
