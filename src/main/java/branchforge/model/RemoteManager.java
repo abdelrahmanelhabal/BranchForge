@@ -27,6 +27,9 @@ public class RemoteManager implements Serializable {
     }
 
     public String get(String name){
+        if(!remotes.containsKey(name)){
+            throw new BranchForgeException("A remote with that name does not exist.");
+        }
         return remotes.get(name);
     }
 

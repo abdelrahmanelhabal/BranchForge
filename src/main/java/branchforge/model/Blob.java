@@ -11,7 +11,7 @@ public class Blob implements Serializable {
     private final byte[] content;
 
     public Blob(byte[] content){
-        this.content = content;
+        this.content = content.clone();
         this.id = Utils.sha1("blob",this.content);
     }
 

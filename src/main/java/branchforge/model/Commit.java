@@ -14,11 +14,19 @@ public class Commit implements Serializable {
     private final TreeMap<String,String> fileToBlob ;
 
     public Commit(String id , String message , Date timeStamp , List<String> parentIds , Map<String,String> files){
-        this.id = id ;
-        this.message = message;
-        this.timeStamp = new Date(timeStamp.getTime());
-        this.parentIds = new ArrayList<>(parentIds);
-        this.fileToBlob = new TreeMap<>(files);
+        this.id = Objects.requireNonNull(id);
+        this.message = Objects.requireNonNull(message);
+        this.timeStamp = new Date( Objects.requireNonNull(timeStamp).getTime() );
+        this.parentIds = validateParents(parentIds);
+        this.fileToBlob = new TreeMap<>( Objects.requireNonNull(files) );
+    }
+
+    private List<String> validateParents(List<String> parentIds) {
+        Objects.requireNonNull(parentIds);
+        if (parentIds.size() > 2) {
+            throw new IllegalArgumentException( "A commit cannot have more than 2 parents." );
+        }
+        return new ArrayList<>(parentIds);
     }
 
     public String getId(){
