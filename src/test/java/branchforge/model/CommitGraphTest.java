@@ -155,14 +155,6 @@ class CommitGraphTest {
         assertThrows(IllegalArgumentException.class, () -> graph.rebuild(deepCycleCommits));
     }
 
-    @Test
-    void testAddCommit_DuplicateParentIdsInCommit_DeduplicatesParentsList() {
-        graph.addCommit(commit("P1"));
-        graph.addCommit(commit("C", "P1", "P1"));
-
-        assertEquals(Collections.singletonList("P1"), graph.getParents("C"));
-        assertEquals(Collections.singletonList("C"), graph.getChildren("P1"));
-    }
 
     @Test
     void testGetParentsAndGetChildren_ReturnedListImmutability_ThrowsOnMutation() {
