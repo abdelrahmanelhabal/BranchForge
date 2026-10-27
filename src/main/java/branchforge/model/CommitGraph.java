@@ -117,4 +117,7 @@ public class CommitGraph {
         common.removeAll(dominated);
         return common ;
     }
+    public Set<String> getLCAs(String currentId, String targetId) {
+        return new HashSet<>();
+    }
 }
