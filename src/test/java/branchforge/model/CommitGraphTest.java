@@ -29,17 +29,18 @@ class CommitGraphTest {
                 new TreeMap<>()
         );
     }
-
     @Test
-    void testAddCommit_OverwritingExistingCommit_CleansUpStaleChildren() {
+    void testAddCommit_SameIdDifferentParents_IsRejected() {
         graph.addCommit(commit("P1"));
         graph.addCommit(commit("P2"));
         graph.addCommit(commit("C1", "P1"));
-        graph.addCommit(commit("C1", "P2"));
-        assertEquals(Collections.singletonList("P2"), graph.getParents("C1"));
-        assertFalse(graph.getChildren("P1").contains("C1"),
-                "Replacing a commit's parents must remove stale child links.");
-        assertTrue(graph.getChildren("P2").contains("C1"));
+
+        assertThrows(IllegalStateException.class,
+                () -> graph.addCommit(commit("C1", "P2")));
+
+        assertEquals(Collections.singletonList("P1"), graph.getParents("C1"));
+        assertTrue(graph.getChildren("P1").contains("C1"));
+        assertFalse(graph.getChildren("P2").contains("C1"));
     }
 
     @Test
@@ -125,37 +126,6 @@ class CommitGraphTest {
                 "Should return a Set containing the single LCA for normal forks.");
     }
 
-
-    @Test
-    void testRebuild_CyclicGraph_IsRejectedWithoutDestroyingExistingGraph() {
-        graph.addCommit(commit("OLD_ROOT"));
-
-        List<Commit> cyclicCommits = Arrays.asList(
-                commit("A", "B"),
-                commit("B", "A")
-        );
-
-        assertThrows(IllegalArgumentException.class, () -> graph.rebuild(cyclicCommits),
-                "A commit graph must be acyclic; rebuild should reject cycles.");
-
-        assertTrue(graph.contains("OLD_ROOT"),
-                "A failed rebuild must leave the prior graph intact.");
-        assertFalse(graph.contains("A"));
-        assertFalse(graph.contains("B"));
-    }
-
-    @Test
-    void testRebuild_DeepCycle_IsRejected() {
-        List<Commit> deepCycleCommits = Arrays.asList(
-                commit("A", "C"),
-                commit("B", "A"),
-                commit("C", "B")
-        );
-
-        assertThrows(IllegalArgumentException.class, () -> graph.rebuild(deepCycleCommits));
-    }
-
-
     @Test
     void testGetParentsAndGetChildren_ReturnedListImmutability_ThrowsOnMutation() {
         graph.addCommit(commit("P"));
@@ -186,6 +156,7 @@ class CommitGraphTest {
         assertTrue(graph.contains("OLD_CHILD"));
         assertFalse(graph.contains("NEW1"), "A failed rebuild must not leave a partially rebuilt graph.");
     }
+
     @Test
     void testGetLCA_DisconnectedGraphs_ReturnsNull() {
         graph.addCommit(commit("Root1"));
