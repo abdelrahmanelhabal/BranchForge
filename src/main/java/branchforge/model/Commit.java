@@ -26,6 +26,9 @@ public class Commit implements Serializable {
         if (parentIds.size() > 2) {
             throw new IllegalArgumentException( "A commit cannot have more than 2 parents." );
         }
+        if (new HashSet<>(parentIds).size() != parentIds.size()) {
+            throw new IllegalArgumentException("A commit cannot have duplicate parents.");
+        }
         return new ArrayList<>(parentIds);
     }
 
