@@ -32,6 +32,15 @@ public class BranchManager implements Serializable {
         }
         return branches.get(name);
     }
+    public void set(String name , String commitId){
+        if(!branches.containsKey(name)){
+            throw new BranchForgeException("A branch with that name does not exist.");
+        }
+        if(commitId == null || commitId.isBlank()){
+            throw new IllegalArgumentException("Commit id cannot be null or blank.");
+        }
+        branches.put(name,commitId);
+    }
 
     public boolean exists(String name){
         return branches.containsKey(name);
