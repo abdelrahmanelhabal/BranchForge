@@ -20,7 +20,7 @@ public class CommitFactory {
         return new Commit(buildId(msg , ts , parents , files) , msg , ts , parents , files);
     }
 
-    public static Commit formStaging(Commit parent , StagingArea staging , String msg , Date ts){
+    public static Commit fromStaging(Commit parent , StagingArea staging , String msg , Date ts){
         TreeMap<String , String> files = new TreeMap<>(parent.getFileToBlob());
         files.putAll(staging.getStagedFiles());
         for(String f : staging.getRemovedFiles()){

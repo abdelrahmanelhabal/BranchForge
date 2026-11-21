@@ -43,7 +43,7 @@ public class Commit implements Serializable {
     public Date getTimeStamp(){
         return new Date(timeStamp.getTime());
     }
-
+    public boolean isMerge() { return parentIds.size() == 2; }
     public List<String> getParentIds(){
         return Collections.unmodifiableList(parentIds);
     }

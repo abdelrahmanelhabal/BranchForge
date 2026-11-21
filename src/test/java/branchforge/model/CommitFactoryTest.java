@@ -28,7 +28,7 @@ public class CommitFactoryTest {
         staging.stageAdd("new.txt", "blob-3");
 
         Date now = new Date();
-        Commit newCommit = CommitFactory.formStaging(parent, staging, "second commit", now);
+        Commit newCommit = CommitFactory.fromStaging(parent, staging, "second commit", now);
 
         assertEquals("second commit", newCommit.getMessage());
         assertEquals(now, newCommit.getTimeStamp());
