@@ -24,7 +24,7 @@ public class AddCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length != 1) {
+        if (args == null || args.length != 1) {
             throw new BranchForgeException("Incorrect operands.");
         }
         String file = args[0];
@@ -33,7 +33,7 @@ public class AddCommand implements Command {
     }
 
     private void validateExists(String file) {
-        if (!workingDir.exists(file)) {
+        if (file == null || file.isBlank() || !workingDir.exists(file)) {
             throw new BranchForgeException("File does not exist.");
         }
     }

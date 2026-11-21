@@ -3,7 +3,6 @@ import branchforge.BranchForgeException;
 import branchforge.model.*;
 import branchforge.store.*;
 import java.io.File;
-import java.util.Date;
 public class Repository {
     private final File rootDir;
     private final File forgeDir;
@@ -15,23 +14,25 @@ public class Repository {
     private BlobStore blobStore;
     private BranchManager branchManager;
     private HeadPointer head;
-    private CommitGraph graph;
     private RemoteManager remoteManager;
 
     public Repository(File rootDir) {
+        if (rootDir == null || (rootDir.exists() && !rootDir.isDirectory())) {
+            throw new BranchForgeException("Repository root must be a valid directory.");
+        }
         this.rootDir = rootDir;
         this.forgeDir = new File(rootDir, ".branchforge");
         this.objectsDir = new File(forgeDir, "objects");
     }
 
     public void init() {
-        if (isInitialized()) {
+        if (forgeDir.exists()) {
             throw new BranchForgeException(
                     "A BranchForge version-control system already exists in the current directory.");
         }
-        forgeDir.mkdirs();
-        objectsDir.mkdirs();
-
+        if (!objectsDir.exists() && !objectsDir.mkdirs()) {
+            throw new BranchForgeException("Failed to create repository directories.");
+        }
         this.workingDir = new WorkingDirectory(rootDir);
         this.stateStore = new StateStore(forgeDir);
         this.commitStore = new CommitStore(objectsDir);
@@ -40,10 +41,9 @@ public class Repository {
         this.branchManager = new BranchManager();
         this.head = new HeadPointer("master");
         this.remoteManager = new RemoteManager();
-        Commit initialCommit = CommitFactory.fromStaging(null, staging, "initial commit", new Date(0));
+        Commit initialCommit = CommitFactory.initialCommit();
         commitStore.save(initialCommit);
         branchManager.create("master", initialCommit.getId());
-        head.setCurrentBranch("master");
         persist();
     }
 
@@ -66,30 +66,44 @@ public class Repository {
     }
 
     public boolean isInitialized() {
-        return forgeDir.isDirectory() && new File(forgeDir, "head").isFile();
+        return forgeDir.isDirectory()
+                && objectsDir.isDirectory()
+                && new File(forgeDir, "head").isFile()
+                && new File(forgeDir, "branches").isFile()
+                && new File(forgeDir, "staging").isFile()
+                && new File(forgeDir, "remotes").isFile();
     }
-
     public void persist() {
+        if (stateStore == null) {
+            throw new BranchForgeException("Repository is not initialized or loaded.");
+        }
         stateStore.save("staging", staging);
         stateStore.save("branches", branchManager);
         stateStore.save("head", head);
         stateStore.save("remotes", remoteManager);
     }
+    private void ensureReady() {
+        if (stateStore == null) {
+            throw new BranchForgeException("Repository is not initialized or loaded.");
+        }
+    }
 
     public File getRootDir() { return rootDir; }
-    public WorkingDirectory getWorkingDir() { return workingDir; }
-    public StagingArea getStaging() { return staging; }
-    public CommitStore getCommitStore() { return commitStore; }
-    public BlobStore getBlobStore() { return blobStore; }
-    public BranchManager getBranchManager() { return branchManager; }
-    public HeadPointer getHead() { return head; }
-    public RemoteManager getRemoteManager() { return remoteManager; }
+    public WorkingDirectory getWorkingDir() { ensureReady(); return workingDir; }
+    public StagingArea getStaging() { ensureReady(); return staging; }
+    public CommitStore getCommitStore() { ensureReady(); return commitStore; }
+    public BlobStore getBlobStore() { ensureReady(); return blobStore; }
+    public BranchManager getBranchManager() { ensureReady(); return branchManager; }
+    public HeadPointer getHead() { ensureReady(); return head; }
+    public RemoteManager getRemoteManager() { ensureReady(); return remoteManager; }
+
 
     public CommitGraph getGraph() {
-        if (graph == null) {
-            graph = new CommitGraph();
-            graph.rebuild(commitStore.loadAll());
+        if (commitStore == null) {
+            throw new BranchForgeException("Repository is not initialized or loaded.");
         }
-        return graph;
+        CommitGraph g = new CommitGraph();
+        g.rebuild(commitStore.loadAll());
+        return g;
     }
 }

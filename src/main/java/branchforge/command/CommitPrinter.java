@@ -9,6 +9,9 @@ final class CommitPrinter {
     private CommitPrinter() {}
 
     static void print(Commit c) {
+        if (c == null) {
+            throw new IllegalArgumentException("Commit cannot be null.");
+        }
         SimpleDateFormat fmt = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
 

@@ -9,12 +9,15 @@ public class FindCommand implements Command {
     private final CommitStore commitStore;
 
     public FindCommand(CommitStore commitStore) {
+        if (commitStore == null) {
+            throw new IllegalArgumentException("CommitStore cannot be null.");
+        }
         this.commitStore = commitStore;
     }
 
     @Override
     public void execute(String[] args) {
-        if (args.length != 1) {
+        if (args==null || args.length != 1) {
             throw new BranchForgeException("Incorrect operands.");
         }
         String searchMessage = args[0];

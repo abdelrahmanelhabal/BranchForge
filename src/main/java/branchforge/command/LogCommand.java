@@ -15,6 +15,9 @@ public class LogCommand implements Command {
     private final HeadPointer head;
 
     public LogCommand(CommitStore commitStore, BranchManager branches, HeadPointer head) {
+        if (commitStore == null || branches == null || head == null) {
+            throw new IllegalArgumentException("Dependencies cannot be null.");
+        }
         this.commitStore = commitStore;
         this.branches = branches;
         this.head = head;
@@ -22,7 +25,7 @@ public class LogCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length > 0) {
+        if (args == null || args.length > 0) {
             throw new BranchForgeException("Incorrect operands.");
         }
 

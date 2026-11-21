@@ -22,11 +22,11 @@ public class RmCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length != 1) {
+        if (args==null || args.length != 1) {
             throw new BranchForgeException("Incorrect operands.");
         }
         String file = args[0];
-
+        validateFileName(file);
         Commit currentCommit = commitStore.load(head.getCurrentCommitId(branches));
         boolean isTracked = currentCommit.getBlobId(file) != null;
         boolean isStaged = staging.getStagedFiles().containsKey(file);
@@ -44,6 +44,11 @@ public class RmCommand implements Command {
             if (workingDir.exists(file)) {
                 workingDir.delete(file);
             }
+        }
+    }
+    private void validateFileName(String file) {
+        if (file == null || file.isBlank()) {
+            throw new BranchForgeException("No reason to remove the file.");
         }
     }
 }

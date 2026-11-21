@@ -21,12 +21,11 @@ public class CommitCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length != 1 || args[0].trim().isEmpty()) {
+        if (args == null || args.length != 1 || args[0] == null || args[0].isBlank()) {
             throw new BranchForgeException("Please enter a commit message.");
         }
         createCommit(args[0]);
     }
-
     private void createCommit(String msg) {
         if (staging.isEmpty()) {
             throw new BranchForgeException("No changes added to the commit.");

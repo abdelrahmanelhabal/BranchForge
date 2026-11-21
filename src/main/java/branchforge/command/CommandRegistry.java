@@ -17,17 +17,19 @@ public class CommandRegistry {
     );
     private final Repository repo;
     public CommandRegistry(Repository repo) {
+        if (repo == null) {
+            throw new BranchForgeException("Repository must not be null.");
+        }
         this.repo = repo;
     }
     public static boolean isKnown(String name) {
-        return FACTORIES.containsKey(name);
+        return name != null && FACTORIES.containsKey(name);
     }
     public Command get(String name) {
-        Function<Repository, Command> f = FACTORIES.get(name);
-        if (f == null) {
+        if (!isKnown(name)) {
             throw new BranchForgeException("No command with that name exists.");
         }
-        return f.apply(repo);
+        return FACTORIES.get(name).apply(repo);
     }
 }
 
